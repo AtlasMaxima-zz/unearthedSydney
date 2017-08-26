@@ -4,7 +4,8 @@ import pandas
 import numpy as np
 from numpy import array
 import matplotlib.pyplot as plt
-from scipy.spatial import ConvexHull
+from scipy.spatial import ConvexHull, Delaunay
+import networkx as nx
 
 path_to_dataset = '../data/Hawkins_Rumker/'
 path_to_output = '../data/'
@@ -13,6 +14,37 @@ zone_number = 55
 zone_letter = "H"
 utm_list = []
 points_utm_list = 0
+points = []
+
+
+def concave(points,alpha_x=150,alpha_y=250):
+    points = [(i[0],i[1]) if type(i) != tuple else i for i in points]
+    de = Delaunay(points)
+    dec = []
+    a = alpha_x
+    b = alpha_y
+    for i in de.simplices:
+        tmp = []
+        j = [points[c] for c in i]
+        if abs(j[0][1] - j[1][1])>a or abs(j[1][1]-j[2][1])>a or abs(j[0][1]-j[2][1])>a or abs(j[0][0]-j[1][0])>b or abs(j[1][0]-j[2][0])>b or abs(j[0][0]-j[2][0])>b:
+            continue
+        for c in i:
+            tmp.append(points[c])
+        dec.append(tmp)
+    G = nx.Graph()
+    for i in dec:
+            G.add_edge(i[0], i[1])
+            G.add_edge(i[0], i[2])
+            G.add_edge(i[1], i[2])
+    ret = []
+    for graph in nx.connected_component_subgraphs(G):
+        ch = ConvexHull(graph.nodes())
+        tmp = []
+        for i in ch.simplices:
+            tmp.append(graph.nodes()[i[0]])
+            tmp.append(graph.nodes()[i[1]])
+        ret.append(tmp)
+    return ret
 
 def process(path_to_dataset, path_to_output, zone_number, zone_letter):
     data_file_name = 'KATSF.csv'
@@ -59,7 +91,6 @@ process(path_to_dataset, path_to_output, zone_number, zone_letter)
 points_utm_list = len(utm_list)
 
 def convex_hull(utm_list):
-    points = []
     ##Only output latitude and longitude from the utm_list
     for item in utm_list:
         points.append(item[:2])
@@ -71,6 +102,7 @@ def plot_convex_hull(points, hull):
     latitude = points[:,0]
     longitude = points[:,1]
     plt.plot(latitude, longitude, 'o')
+
     for simplex in hull.simplices:
         plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
     plt.plot(points[hull.vertices,0], points[hull.vertices,1], 'r--', lw=2)
@@ -78,3 +110,12 @@ def plot_convex_hull(points, hull):
     plt.show()
 
 convex_hull(utm_list)
+
+def plot_concave_hull(points):
+    points = array(points)
+    latitude = points[:,0]
+    longitude = points[:,1]
+    plt.plot(*zip(*points), marker='o', color='g')
+    plt.show()
+
+plot_concave_hull(points)
