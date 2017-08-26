@@ -4,8 +4,8 @@ import pandas
 
 # print(utm.to_latlon(340000, 5710000, 55, 'J'))
 
-path_to_dataset = '../data/'
-path_to_output = '../data/'
+path_to_dataset = 'data/'
+path_to_output = 'data/'
 
 zone_number = 55
 zone_letter = "J"
