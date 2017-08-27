@@ -80,7 +80,7 @@ def merge(old_data_points, new_data_points):
     :param new_data_points: The new data
     :returns: A pair containing an array for all the data, and the corresponding kd-tree"""
     hull = Delaunay(new_data_points[:,[1,2]])
-    smaller = np.array(old_data_points[hull.find_simplex(old_data_points[:,[1,2]]) < 0])
+    smaller = np.array(old_data_points[hull.find_simplex(old_data_points[:,[0,1]]) < 0])
     merged_data = np.concatenate((new_data_points, smaller))
     return create_kdtree(merged_data)
 
