@@ -6,13 +6,12 @@ from numpy import array
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull, Delaunay
 import networkx as nx
+import folium
+from folium import plugins
 
-<<<<<<< HEAD
-# print(utm.to_latlon(340000, 5710000, 55, 'J'))
 
-path_to_dataset = 'data/'
-path_to_output = 'data/'
->>>>>> 4b729a2570ce543f0f02143be8143ea27495e8b8
+path_to_dataset = '../data/Sydney_Basin/'
+path_to_output = '../data/'
 
 zone_number = 55
 zone_letter = "H"
@@ -51,20 +50,33 @@ def concave(points,alpha_x=150,alpha_y=250):
     return ret
 
 def process(path_to_dataset, path_to_output, zone_number, zone_letter):
-    data_file_name = 'KATSF.csv'
+    data_file_name = 'Base_Illawarra.csv'
     data_file_output = 'Output_' + data_file_name
 
     with open(path_to_dataset + data_file_name, 'r') as csvfile:
         reader = csv.reader(csvfile)
         data_list = list(reader)
         xyz_columns = []
-        # utm_list = []
 
         ##case 1
         firstRow = data_list[0]
-        if "NAME" and "PART_ID" in firstRow:
+        if "NAME" in firstRow:
             for row in data_list:
                 xyz_columns = row[2:]
+                try:
+                    x_coorindate = float(row[2])
+                    y_coorindate = (row[3])
+                    z_coorindate = (row[4])
+                    print((x_coorindate), type(x_coorindate))
+                except:
+                    pass
+
+            print(data_list)
+                # if z_coorindate != 99999.00:
+                #     utm_tuple= list(utm.to_latlon(x_coorindate, y_coorindate, zone_number, zone_letter))
+                #     utm_tuple.append(z_coorindate)
+                #     utm_list.append(utm_tuple)
+                #     break
         else:
         ##case 2
             counter = 0
@@ -72,27 +84,42 @@ def process(path_to_dataset, path_to_output, zone_number, zone_letter):
                 counter +=1
                 if "X" and "Y" and "Z" in data_list[index]:
                     xyz_columns = data_list[12:]
-    ##convert csv to latlon
-    for point in xyz_columns:
-        x_coorindate = float(point[0])
-        y_coorindate = float(point[1])
-        z_coorindate = float(point[2])
+            #convert csv to latlon
+            for point in xyz_columns:
+                x_coorindate = float(point[0])
+                y_coorindate = float(point[1])
+                z_coorindate = float(point[2])
 
-        ##remove null points if they are 99999.00
-        if z_coorindate != 99999.00:
-            utm_tuple= list(utm.to_latlon(x_coorindate, y_coorindate, zone_number, zone_letter))
-            utm_tuple.append(z_coorindate)
-            utm_list.append(utm_tuple)
-    length_utm_list = len(utm_list)
-
-    # ##write and create cvs file
-    # writer = csv.writer(open(path_to_output + data_file_output, 'w'))
-    # for point in utm_list:
-    #     writer.writerow(point)
-
+                ##remove null points if they are 99999.00
+                if z_coorindate != 99999.00:
+                    utm_tuple= list(utm.to_latlon(x_coorindate, y_coorindate, zone_number, zone_letter))
+                    utm_tuple.append(z_coorindate)
+                    utm_list.append(utm_tuple)
+                    break
+            length_utm_list = len(utm_list)
+        #
+#
+#     # ##write and create cvs file
+#     # writer = csv.writer(open(path_to_output + data_file_output, 'w'))
+#     # for point in utm_list:
+#     #     writer.writerow(point)
+#
+#
 process(path_to_dataset, path_to_output, zone_number, zone_letter)
-
+#
 points_utm_list = len(utm_list)
+from folium.plugins import HeatMap
+
+def folium_heatmap(utm_list):
+    lats = [float(item[0]) for item in utm_list]
+    longs = [float(item[1]) for item in utm_list]
+    mag = [float(item[2]) for item in utm_list]
+    terrain_map = folium.Map(location=[-33.868819700, 151.209295500], tiles='Stamen Terrain', zoom_start=12)
+    HeatMap(zip(lats, longs, mag), radius = 10).add_to(terrain_map)
+    # heat_map.add_children(plugins.Heatmap(zip(lats, longs, mag), radius = 10))
+    terrain_map.save('../map.html')
+
+folium_heatmap(utm_list)
 
 def convex_hull(utm_list):
     ##Only output latitude and longitude from the utm_list
