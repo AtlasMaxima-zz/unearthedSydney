@@ -4,6 +4,9 @@ import csv
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import ConvexHull, Delaunay
+import folium
+from folium import plugins 
+from folium.plugins import HeatMap
 
 def read_data(input_filename):
     """Read in a file, returning an array and a kdtree"""
@@ -47,7 +50,10 @@ def grid(data_points, kdtree, xbounds, ybounds, num_xsteps=300, num_ysteps=300):
     return (xsteps,ysteps,res)
 
 def draw(xs,ys,zs):
-    """Draw a mesh"""
+    """Draw a mesh from a grid of points
+    :param xs: A 1-D array of x-coordinates
+    :param ys: A 1-D array of y-cooridinates
+    :param zs: A 2-D array of heights"""
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     xs,ys = np.meshgrid(xs,ys)
@@ -56,7 +62,10 @@ def draw(xs,ys,zs):
 
 def downscale(data_points, kdtree, xbounds, ybounds, num_xsteps=300, num_ysteps=300):
     """Make a new dataset at a lower resolution. This won't interpolate to create
-    new points, so it can't be used to increase resolution"""
+    new points, so it can't be used to increase resolution
+    :param data_points: An array of x,y,z values
+    :param kdtree: The matching tree
+    """
     (xs,ys,data) = grid(data_points, kdtree, xbounds, ybounds, num_xsteps, num_ysteps)
     (xs,ys) = np.meshgrid(xs,ys)
     xs = xs.flatten()
@@ -66,7 +75,10 @@ def downscale(data_points, kdtree, xbounds, ybounds, num_xsteps=300, num_ysteps=
     return (new_data, cKDTree(new_data[:,[0,1]]))
 
 def merge(old_data_points, new_data_points):
-    """Merge two sets of data. The first one must be larger"""
+    """Merge two sets of data. The first one must be larger
+    :param old_data_points: The "base" dataset
+    :param new_data_points: The new data
+    :returns: A pair containing an array for all the data, and the corresponding kd-tree"""
     hull = Delaunay(new_data_points[:,[1,2]])
     smaller = np.array(old_data_points[hull.find_simplex(old_data_points[:,[1,2]]) < 0])
     merged_data = np.concatenate((new_data_points, smaller))
@@ -75,6 +87,8 @@ def merge(old_data_points, new_data_points):
 def read_tiered_data(filenames):
     """Given a list of files partially ordered by resolution
     (low to high) return a kdtree and dataset
+    :param filenames: A list of filenames
+    :returns: A pair containing an array for all the data, and the corresponding kd-tree
     """
     initial = None
     kdtree = None
@@ -85,3 +99,10 @@ def read_tiered_data(filenames):
             (d,t) = read_data(f)
             (initial,kdtree) = merge(initial,d)
     return (initial, kdtree)
+
+def draw_heatmap(x,y,z):
+    """Draw a heatmap using folium. Not really that useful"""
+    x,y = np.meshgrid(x,y)
+    terrain_map = folium.Map(location=[x[0,0], y[0,0]], tiles='Stamen Terrain', zoom_start=12)
+    HeatMap(zip(x.flatten(),y.flatten(),z.flatten()), radius=10).add_to(terrain_map) 
+    terrain_map.save('map.html')

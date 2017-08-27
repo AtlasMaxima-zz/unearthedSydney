@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull, Delaunay
 import networkx as nx
 import folium
-from folium import plugins
+from folium import plugins 
 
 path_to_dataset = '../data/Sydney_Basin/'
 path_to_output = '../data/'
