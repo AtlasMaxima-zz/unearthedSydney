@@ -7,12 +7,10 @@ import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull, Delaunay
 import networkx as nx
 
-<<<<<<< HEAD
 # print(utm.to_latlon(340000, 5710000, 55, 'J'))
 
 path_to_dataset = 'data/'
 path_to_output = 'data/'
->>>>>> 4b729a2570ce543f0f02143be8143ea27495e8b8
 
 zone_number = 55
 zone_letter = "H"
@@ -51,7 +49,7 @@ def concave(points,alpha_x=150,alpha_y=250):
     return ret
 
 def process(path_to_dataset, path_to_output, zone_number, zone_letter):
-    data_file_name = 'KATSF.csv'
+    data_file_name = 'IllawarraCM_SR.csv'
     data_file_output = 'Output_' + data_file_name
 
     with open(path_to_dataset + data_file_name, 'r') as csvfile:
@@ -86,9 +84,9 @@ def process(path_to_dataset, path_to_output, zone_number, zone_letter):
     length_utm_list = len(utm_list)
 
     # ##write and create cvs file
-    # writer = csv.writer(open(path_to_output + data_file_output, 'w'))
-    # for point in utm_list:
-    #     writer.writerow(point)
+    writer = csv.writer(open(path_to_output + data_file_output, 'w'))
+    for point in utm_list:
+        writer.writerow(point)
 
 process(path_to_dataset, path_to_output, zone_number, zone_letter)
 

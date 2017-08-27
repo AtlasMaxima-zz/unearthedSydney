@@ -1,6 +1,9 @@
 from scipy.spatial import cKDTree
 import numpy as np
 import csv
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.spatial import ConvexHull, Delaunay
 
 def read_data(input_filename):
     """Read in a file, returning an array and a kdtree"""
@@ -9,6 +12,9 @@ def read_data(input_filename):
         data_points = np.array([tuple(map(float,line)) for line in input_reader])
         kdtree = cKDTree(data_points[:,[0,1]])
     return (data_points, kdtree)
+
+def create_kdtree(data_points):
+    return (data_points, cKDTree(data_points[:,[0,1]]))
 
 def bounds(kdtree):
     """Return the bounds of a kdtree"""
@@ -28,7 +34,8 @@ def point_value(arr,data_points,x,kdtree):
     return np.mean(arr)
 
 def grid(data_points, kdtree, xbounds, ybounds, num_xsteps=300, num_ysteps=300):
-    """Return a grid of z value between the bounds given"""
+    """Return a grid of z value between the bounds given. It'll work for
+    things that aren't square, but please try and make it a square"""
     (minx, maxx) = xbounds
     (miny, maxy) = ybounds
     res = np.zeros((num_xsteps,num_ysteps))
@@ -40,8 +47,7 @@ def grid(data_points, kdtree, xbounds, ybounds, num_xsteps=300, num_ysteps=300):
     return (xsteps,ysteps,res)
 
 def draw(xs,ys,zs):
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
+    """Draw a mesh"""
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     xs,ys = np.meshgrid(xs,ys)
@@ -49,6 +55,8 @@ def draw(xs,ys,zs):
     plt.show()
 
 def downscale(data_points, kdtree, xbounds, ybounds, num_xsteps=300, num_ysteps=300):
+    """Make a new dataset at a lower resolution. This won't interpolate to create
+    new points, so it can't be used to increase resolution"""
     (xs,ys,data) = grid(data_points, kdtree, xbounds, ybounds, num_xsteps, num_ysteps)
     (xs,ys) = np.meshgrid(xs,ys)
     xs = xs.flatten()
@@ -56,3 +64,24 @@ def downscale(data_points, kdtree, xbounds, ybounds, num_xsteps=300, num_ysteps=
     data = data.flatten()
     new_data = np.array(xs,ys,data).T
     return (new_data, cKDTree(new_data[:,[0,1]]))
+
+def merge(old_data_points, new_data_points):
+    """Merge two sets of data. The first one must be larger"""
+    hull = Delaunay(new_data_points[:,[1,2]])
+    smaller = np.array(old_data_points[hull.find_simplex(old_data_points[:,[1,2]]) < 0])
+    merged_data = np.concatenate((new_data_points, smaller))
+    return create_kdtree(merged_data)
+
+def read_tiered_data(filenames):
+    """Given a list of files partially ordered by resolution
+    (low to high) return a kdtree and dataset
+    """
+    initial = None
+    kdtree = None
+    for f in filenames:
+        if kdtree is None:
+            initial,kdtree = read_data(f)
+        else:
+            (d,t) = read_data(f)
+            (initial,kdtree) = merge(initial,d)
+    return (initial, kdtree)
