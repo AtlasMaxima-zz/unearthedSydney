@@ -11778,15 +11778,11 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Demonstration-of-Map-M8-selective-block-loading">Demonstration of Map-M8 selective block loading<a class="anchor-link" href="#Demonstration-of-Map-M8-selective-block-loading">&#182;</a></h1><ul>
-<li>Multiple resolutions</li>
-<li>Automatic usage of best resolution for given area</li>
-<li></li>
-</ul>
-<p>The industry standard for terrain formats are excel spreadsheets, CSV files and DXF files (A file format used for computer aided drawing). <em>Insert joke about how are a house and rocks have been different for a while</em>
+<h1 id="Demonstration-of-Map-M8-selective-block-loading">Demonstration of Map-M8 selective block loading<a class="anchor-link" href="#Demonstration-of-Map-M8-selective-block-loading">&#182;</a></h1><p>The industry standard for terrain formats are excel spreadsheets, CSV files and DXF files (A file format used for computer aided drawing). <em>Insert joke about how are a house and rocks have been different for a while</em>
 There is a lot of tooling built around the current file types - but they're no good for quick visualisation
-on differing scales or of very large datasets. Sharing data means sending large files, and merging data is a nightmare, especially when they're overlapping</p>
-
+on differing scales or of very large datasets. Sharing data means sending large files, and merging data is a nightmare, especially when they're overlapping.</p>
+<p>In this demo, we combine three datasets of varying resolution into a single dataset, and then query it for a specific area. For any given area, the area of best resolution is used.</p>
+<h2 id="Setting-up-for-3D-visualisation">Setting up for 3D visualisation<a class="anchor-link" href="#Setting-up-for-3D-visualisation">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -11809,7 +11805,7 @@ on differing scales or of very large datasets. Sharing data means sending large 
 <span class="kn">import</span> <span class="nn">mesh</span>
 
 <span class="k">def</span> <span class="nf">render_pretty_map_portion</span><span class="p">(</span><span class="n">x_origin</span><span class="o">=-</span><span class="mi">33</span><span class="p">,</span><span class="n">y_origin</span><span class="o">=</span><span class="mf">149.5</span><span class="p">):</span>
-
+    <span class="c1"># Merge datasets</span>
     <span class="n">d</span><span class="p">,</span><span class="n">t</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">read_tiered_data</span><span class="p">([</span><span class="s1">&#39;data/Output_Top_Illawarra.csv&#39;</span><span class="p">,</span><span class="s1">&#39;data/Output_IllawarraCM_SR.csv&#39;</span><span class="p">,</span><span class="s1">&#39;data/Output_KATSF.csv&#39;</span><span class="p">])</span>
 
     <span class="c1">#x_origin = -33</span>
@@ -11863,7 +11859,8 @@ on differing scales or of very large datasets. Sharing data means sending large 
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Block-1">Block 1<a class="anchor-link" href="#Block-1">&#182;</a></h1>
+<h1 id="Query-of-specific-areas">Query of specific areas<a class="anchor-link" href="#Query-of-specific-areas">&#182;</a></h1><p>Area covered: Lat: -33.0 to -32.0, Long: 149.5 to 150.3</p>
+
 </div>
 </div>
 </div>
@@ -11898,6 +11895,16 @@ on differing scales or of very large datasets. Sharing data means sending large 
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Shifting-views">Shifting views<a class="anchor-link" href="#Shifting-views">&#182;</a></h2><p>Area covered: Lat: -34 to -33, Long: 150 to 150.8</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[34]:</div>
@@ -11927,6 +11934,16 @@ on differing scales or of very large datasets. Sharing data means sending large 
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Area covered: Lat: -34.5 to -33.5, Long: 150 to 150.8</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
