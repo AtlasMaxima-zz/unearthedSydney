@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull, Delaunay
 import networkx as nx
 import folium
-from folium import plugins 
+from folium import plugins
 
 
 path_to_dataset = '../data/Sydney_Basin/'
@@ -50,7 +50,7 @@ def concave(points,alpha_x=150,alpha_y=250):
     return ret
 
 def process(path_to_dataset, path_to_output, zone_number, zone_letter):
-    data_file_name = 'Base_Illawarra.csv'
+    data_file_name = 'KATSF.csv'
     data_file_output = 'Output_' + data_file_name
 
     with open(path_to_dataset + data_file_name, 'r') as csvfile:
@@ -94,12 +94,12 @@ def process(path_to_dataset, path_to_output, zone_number, zone_letter):
                     utm_tuple.append(z_coorindate)
                     utm_list.append(utm_tuple)
             length_utm_list = len(utm_list)
-#     # ##write and create cvs file
-#     # writer = csv.writer(open(path_to_output + data_file_output, 'w'))
-#     # for point in utm_list:
-#     #     writer.writerow(point)
-#
-#
+    ##write and create cvs file
+    writer = csv.writer(open(path_to_output + data_file_output, 'w'))
+    for point in utm_list:
+        writer.writerow(point)
+
+
 process(path_to_dataset, path_to_output, zone_number, zone_letter)
 #
 points_utm_list = len(utm_list)
@@ -114,7 +114,7 @@ def folium_heatmap(utm_list):
     # heat_map.add_children(plugins.Heatmap(zip(lats, longs, mag), radius = 10))
     terrain_map.save('../code/new.html')
 
-folium_heatmap(utm_list)
+# folium_heatmap(utm_list)
 
 # def convex_hull(utm_list):
 #     ##Only output latitude and longitude from the utm_list
